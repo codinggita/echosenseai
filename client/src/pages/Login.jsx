@@ -33,7 +33,7 @@ export default function Login() {
             <div className="w-14 h-14 bg-blue-50 text-accent rounded-xl flex items-center justify-center mx-auto mb-5">
                <Volume2 className="h-7 w-7" />
             </div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-foreground mb-2">EchoSense AI</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground mb-2">Klyvora AI</h1>
             <p className="text-[15px] text-muted-foreground font-medium">Real-time voice intelligence for modern businesses.</p>
           </div>
 

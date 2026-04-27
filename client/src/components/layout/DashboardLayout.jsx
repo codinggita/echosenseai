@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+                                               import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router';
-import { LayoutDashboard, LogOut, Loader2, Volume2, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, LogOut, Loader2, Volume2, MessageSquare, BrainCircuit } from 'lucide-react';
 import { auth, db } from '../../lib/firebase';
 import { signOut } from 'firebase/auth';
 import { collection, query, where, getDocs, doc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -63,7 +63,7 @@ export default function DashboardLayout() {
       <aside className="w-64 bg-white border-r border-slate-200 flex flex-col hidden md:flex">
         <div className="p-6 border-b border-slate-200 flex items-center gap-2">
           <Volume2 className="h-6 w-6 text-blue-600" />
-          <span className="font-bold text-xl tracking-tight text-slate-900">EchoSense AI</span>
+          <span className="font-bold text-xl tracking-tight text-slate-900">Klyvora AI</span>
         </div>
         
         <nav className="flex-1 p-4 space-y-1">
@@ -82,7 +82,15 @@ export default function DashboardLayout() {
             <MessageSquare className="w-5 h-5" />
             Voice Feed
           </Link>
-          {/* We will add remaining links like Intelligence, etc in future pushes */}
+
+          <Link 
+             to="/analytics" 
+             className={`flex items-center gap-3 px-3 py-2 font-medium rounded-lg ${location.pathname === '/analytics' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}
+          >
+            <BrainCircuit className="w-5 h-5" />
+            Intelligence
+          </Link>
+          {/* We will add remaining links like AI Insights in future pushes */}
         </nav>
 
         <div className="p-4 border-t border-slate-200">

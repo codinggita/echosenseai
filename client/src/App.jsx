@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Dashboard from './pages/Dashboard';
 import FeedbackList from './pages/FeedbackList';
+import Analytics from './pages/Analytics';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -22,7 +23,7 @@ function App() {
   if (loading) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-slate-50">
-        <div className="text-sm font-medium text-slate-500 animate-pulse">Initializing EchoSense...</div>
+        <div className="text-sm font-medium text-slate-500 animate-pulse">Initializing Klyvora...</div>
       </div>
     );
   }
@@ -38,6 +39,7 @@ function App() {
       >
         <Route index element={<Dashboard />} />
         <Route path="feedback" element={<FeedbackList />} />
+        <Route path="analytics" element={<Analytics />} />
       </Route>
       
       {/* Fallback */}

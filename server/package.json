@@ -1,7 +1,7 @@
 {
-  "name": "echosense-backend",
+  "name": "klyvora-backend",
   "version": "1.0.0",
-  "description": "Backend server for EchoSense AI",
+  "description": "Backend server for Klyvora AI",
   "main": "index.js",
   "type": "module",
   "scripts": {
