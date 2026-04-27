@@ -13,7 +13,10 @@ export default function DashboardLayout() {
 
   useEffect(() => {
     async function loadBusiness() {
-      if (!auth.currentUser) return;
+      if (!auth.currentUser) {
+        setLoading(false);
+        return;
+      }
       try {
         const q = query(
           collection(db, 'businesses'), 
