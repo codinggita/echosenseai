@@ -1,6 +1,6 @@
                                                import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router';
-import { LayoutDashboard, LogOut, Loader2, Volume2, MessageSquare, BrainCircuit } from 'lucide-react';
+import { LayoutDashboard, LogOut, Loader2, Volume2, MessageSquare, BrainCircuit, Sparkles } from 'lucide-react';
 import { auth, db } from '../../lib/firebase';
 import { signOut } from 'firebase/auth';
 import { collection, query, where, getDocs, doc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -90,7 +90,15 @@ export default function DashboardLayout() {
             <BrainCircuit className="w-5 h-5" />
             Intelligence
           </Link>
-          {/* We will add remaining links like AI Insights in future pushes */}
+
+          <Link 
+             to="/insights" 
+             className={`flex items-center gap-3 px-3 py-2 font-medium rounded-lg ${location.pathname === '/insights' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}
+          >
+            <Sparkles className="w-5 h-5" />
+            AI Insights
+          </Link>
+          {/* We will add remaining links like Settings in future pushes */}
         </nav>
 
         <div className="p-4 border-t border-slate-200">
