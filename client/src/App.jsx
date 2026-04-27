@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router';
 import Login from './pages/Login';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Dashboard from './pages/Dashboard';
+import FeedbackList from './pages/FeedbackList';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
       {/* Protected Routes placeholder */}
       <Route path="/" element={<DashboardLayout />}>
         <Route index element={<Dashboard />} />
+        <Route path="feedback" element={<FeedbackList />} />
       </Route>
       
       {/* Fallback */}

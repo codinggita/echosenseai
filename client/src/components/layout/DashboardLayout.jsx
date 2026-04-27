@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router';
-import { LayoutDashboard, LogOut, Loader2, Volume2 } from 'lucide-react';
+import { LayoutDashboard, LogOut, Loader2, Volume2, MessageSquare } from 'lucide-react';
 import { auth, db } from '../../lib/firebase';
 import { signOut } from 'firebase/auth';
 import { collection, query, where, getDocs, doc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -71,7 +71,15 @@ export default function DashboardLayout() {
             <LayoutDashboard className="w-5 h-5" />
             Dashboard
           </Link>
-          {/* We will add remaining links like Feedback, Intelligence, etc in future pushes */}
+
+          <Link 
+             to="/feedback" 
+             className={`flex items-center gap-3 px-3 py-2 font-medium rounded-lg ${location.pathname === '/feedback' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}
+          >
+            <MessageSquare className="w-5 h-5" />
+            Voice Feed
+          </Link>
+          {/* We will add remaining links like Intelligence, etc in future pushes */}
         </nav>
 
         <div className="p-4 border-t border-slate-200">
