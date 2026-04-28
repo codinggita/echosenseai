@@ -20,7 +20,7 @@ app.use('/api', apiRoutes);
 
 // Base route
 app.get('/', (req, res) => {
-  res.send('EchoSense AI API is running...');
+  res.send('Klyvora AI API is running...');
 });
 
 // Error Handling
