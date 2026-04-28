@@ -1,6 +1,6 @@
                                                import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router';
-import { LayoutDashboard, LogOut, Loader2, Volume2, MessageSquare, BrainCircuit, Sparkles, Users, Settings } from 'lucide-react';
+import { LayoutDashboard, LogOut, Loader2, Volume2, MessageSquare, BrainCircuit, Sparkles, Users, Settings, UserCircle } from 'lucide-react';
 import { auth, db } from '../../lib/firebase';
 import { signOut } from 'firebase/auth';
 import { collection, query, where, getDocs, doc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -113,6 +113,14 @@ export default function DashboardLayout() {
           >
             <Settings className="w-5 h-5" />
             Settings
+          </Link>
+
+          <Link 
+             to="/profile" 
+             className={`flex items-center gap-3 px-3 py-2 font-medium rounded-lg ${location.pathname === '/profile' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}
+          >
+            <UserCircle className="w-5 h-5" />
+            Profile
           </Link>
         </nav>
 

@@ -12,6 +12,7 @@ import StaffTracking from './pages/StaffTracking';
 import Settings from './pages/Settings';
 import Landing from './pages/Landing';
 import FeedbackCapture from './pages/FeedbackCapture';
+import Profile from './pages/Profile';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -53,6 +54,7 @@ function App() {
         <Route path="insights" element={<AIInsights />} />
         <Route path="staff" element={<StaffTracking />} />
         <Route path="settings" element={<Settings />} />
+        <Route path="profile" element={<Profile />} />
       </Route>
       
       {/* Fallback */}
