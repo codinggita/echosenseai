@@ -1,4 +1,25 @@
+# Dependencies
 node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+
+# Production
 dist/
+build/
+
+# Environment / Config (SENSITIVE)
 .env
+.env.local
+.env.*.local
+firebase-applet-config.json
+firebase-blueprint.json
+
+# IDEs
+.vscode/
+.idea/
+
+# Legacy
 real/
