@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { QRCodeSVG } from 'qrcode.react';
-import { Copy, ExternalLink, ShieldCheck, KeyRound, MonitorSmartphone } from 'lucide-react';
+import { Copy, ExternalLink, ShieldCheck, KeyRound, MonitorSmartphone, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
@@ -81,14 +81,14 @@ export default function Settings() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-col md:flex-row gap-8 items-start">
-              <div className="p-4 bg-white rounded-xl border inline-flex">
+              <div className="p-4 bg-card rounded-xl border border-border inline-flex">
                 <QRCodeSVG value={captureUrl} size={160} level="Q" />
               </div>
               <div className="flex-1 space-y-4">
                 <div className="space-y-2">
                   <Label>Direct Link</Label>
                   <div className="flex items-center gap-2">
-                    <Input readOnly value={captureUrl} className="font-mono text-sm bg-neutral-50" />
+                    <Input readOnly value={captureUrl} className="font-mono text-sm bg-secondary/50" />
                     <Button variant="outline" size="icon" onClick={copyToClipboard} title="Copy link">
                       <Copy className="w-4 h-4" />
                     </Button>
@@ -97,8 +97,8 @@ export default function Settings() {
                     </Button>
                   </div>
                 </div>
-                <div className="p-4 bg-neutral-50 rounded-lg text-sm text-neutral-600">
-                  <h4 className="font-semibold text-neutral-900 mb-1">How to use</h4>
+                <div className="p-4 bg-secondary/50 rounded-lg text-sm text-muted-foreground">
+                  <h4 className="font-semibold text-foreground mb-1">How to use</h4>
                   <ul className="list-disc list-inside space-y-1">
                     <li>Print the QR Code for tables or receipts</li>
                     <li>Add the link to your SMS or WhatsApp receipts</li>
@@ -112,9 +112,9 @@ export default function Settings() {
 
         {/* Kiosk Customization Card */}
         <Card className="md:col-span-2 border shadow-sm">
-          <CardHeader className="bg-neutral-50/50 border-b pb-4">
+          <CardHeader className="bg-secondary/30 border-b border-border pb-4">
             <div className="flex items-center gap-2">
-               <MonitorSmartphone className="w-5 h-5 text-neutral-600" />
+               <MonitorSmartphone className="w-5 h-5 text-muted-foreground" />
                <CardTitle>Kiosk Customization</CardTitle>
             </div>
             <CardDescription>
@@ -140,20 +140,20 @@ export default function Settings() {
                 />
               </div>
             </div>
-            <div className="flex items-start md:items-center justify-between p-4 border rounded-lg bg-neutral-50 flex-col md:flex-row gap-4">
+            <div className="flex items-start md:items-center justify-between p-4 border border-border rounded-lg bg-secondary/30 flex-col md:flex-row gap-4">
               <div className="space-y-1">
                 <Label className="text-sm font-semibold">Request Customer Contact</Label>
                 <p className="text-xs text-muted-foreground w-full max-w-sm">After processing the feedback, ask customers for their email or phone number for follow-ups.</p>
               </div>
               <div 
                 onClick={() => setKioskConfig(prev => ({...prev, collectContact: !prev.collectContact}))}
-                className={`flex-shrink-0 h-6 w-11 rounded-full relative cursor-pointer transition-colors duration-200 border ${kioskConfig.collectContact ? 'bg-foreground border-foreground' : 'bg-neutral-200 border-neutral-300'}`}
+                className={`flex-shrink-0 h-6 w-11 rounded-full relative cursor-pointer transition-colors duration-200 border ${kioskConfig.collectContact ? 'bg-foreground border-foreground' : 'bg-secondary border-border'}`}
               >
-                <div className={`absolute top-[2px] w-4 h-4 rounded-full bg-white transition-all duration-200 shadow-sm ${kioskConfig.collectContact ? 'left-[22px]' : 'left-[2px]'}`}></div>
+                <div className={`absolute top-[2px] w-4 h-4 rounded-full bg-card transition-all duration-200 shadow-sm ${kioskConfig.collectContact ? 'left-[22px]' : 'left-[2px]'}`}></div>
               </div>
             </div>
           </CardContent>
-          <CardFooter className="bg-neutral-50/50 flex justify-end p-4 border-t">
+          <CardFooter className="bg-secondary/30 flex justify-end p-4 border-t border-border">
             <Button onClick={handleSaveKiosk} disabled={savingKiosk} size="sm">
               {savingKiosk ? 'Saving...' : 'Save Configuration'}
             </Button>
@@ -166,9 +166,9 @@ export default function Settings() {
             <CardDescription>Manage staff roles and access.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between p-3 border rounded-md bg-neutral-50">
+            <div className="flex items-center justify-between p-3 border border-border rounded-md bg-secondary/30">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">
+                <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
                   <ShieldCheck className="w-4 h-4" />
                 </div>
                 <div>
@@ -195,8 +195,8 @@ export default function Settings() {
                 <span>Critical Alerts</span>
                 <span className="font-normal text-xs text-muted-foreground">Notify on negative feedback</span>
               </Label>
-              <div className="h-5 w-9 rounded-full bg-neutral-900 relative cursor-pointer">
-                <div className="absolute right-1 top-1 h-3 w-3 rounded-full bg-white"></div>
+              <div className="h-5 w-9 rounded-full bg-foreground relative cursor-pointer">
+                <div className="absolute right-1 top-1 h-3 w-3 rounded-full bg-card"></div>
               </div>
             </div>
             <div className="flex items-center justify-between opacity-50">
@@ -204,12 +204,26 @@ export default function Settings() {
                 <span>Daily Digest</span>
                 <span className="font-normal text-xs text-muted-foreground">Summary of the day's feedback</span>
               </Label>
-              <div className="h-5 w-9 rounded-full bg-neutral-200 relative">
-                <div className="absolute left-1 top-1 h-3 w-3 rounded-full bg-white"></div>
+              <div className="h-5 w-9 rounded-full bg-secondary border border-border relative">
+                <div className="absolute left-1 top-1 h-3 w-3 rounded-full bg-card"></div>
               </div>
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      <div className="pt-12 pb-4 text-center">
+        <p className="text-muted-foreground text-sm font-medium tracking-wide flex items-center justify-center gap-1.5">
+          Created with <Heart className="w-4 h-4 text-red-500 fill-current" /> by{' '}
+          <a 
+            href="https://pal-pathak-sigma.vercel.app" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-foreground hover:underline hover:text-blue-600 transition-colors"
+          >
+            Pal Pathak
+          </a>
+        </p>
       </div>
     </div>
   );
