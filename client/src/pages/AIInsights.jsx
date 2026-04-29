@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useOutletContext } from 'react-router';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, AreaChart, Area, Cell, PieChart, Pie } from 'recharts';
-import { BrainCircuit, TrendingUp, TrendingDown, AlertTriangle, Clock, Lightbulb, Sparkles, Target, ShieldAlert, Activity, Zap, Bell, Layers, Timer, Flame, ThumbsUp, ThumbsDown, Minus } from 'lucide-react';
+import { BrainCircuit, TrendingUp, TrendingDown, AlertTriangle, Clock, Lightbulb, Sparkles, Target, ShieldAlert, Activity, Zap, Bell, Layers, Timer, Flame, ThumbsUp, ThumbsDown, Minus, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { auth, db } from '../lib/firebase';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 
 // ─── Constants ───────────────────────────────────────
 const INSIGHT_ICONS = { trend: TrendingUp, pattern: Clock, issue: AlertTriangle };
@@ -254,16 +254,15 @@ export default function AIInsights() {
   const [smartAlerts, setSmartAlerts] = useState([]);
   const [topicClusters, setTopicClusters] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [lastRefresh, setLastRefresh] = useState(null);
   const [activeTab, setActiveTab] = useState('overview'); // overview | alerts | clusters
 
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
     if (!businessId) return;
-    setLoading(true);
-
-    const q = query(collection(db, `businesses/${businessId}/feedbacks`), orderBy('createdAt', 'desc'));
-    
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    try {
+      const q = query(collection(db, `businesses/${businessId}/feedbacks`), orderBy('createdAt', 'desc'));
+      const snapshot = await getDocs(q);
       const rawData = snapshot.docs.map(doc => {
         const data = doc.data();
         let created = new Date();
@@ -278,14 +277,22 @@ export default function AIInsights() {
       setSmartAlerts(generateSmartAlerts(rawData));
       setTopicClusters(generateTopicClusters(rawData));
       setLastRefresh(new Date());
+    } catch (err) {
+      console.error("AI Insights fetch error:", err);
+    } finally {
       setLoading(false);
-    }, (err) => {
-      console.error("Snapshot error:", err);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
+      setRefreshing(false);
+    }
   }, [businessId]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchData();
+  };
 
   if (loading || !businessId) {
     return (
@@ -322,10 +329,18 @@ export default function AIInsights() {
         <div className="flex items-center gap-3">
           {lastRefresh && (
             <span className="text-[11px] text-muted-foreground font-mono bg-secondary/50 px-2 py-1 rounded flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Live — {format(lastRefresh, 'h:mm a')}
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              Updated — {format(lastRefresh, 'h:mm a')}
             </span>
           )}
+          <button 
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground bg-secondary/50 hover:bg-secondary transition-all active:scale-95"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+            {refreshing ? 'Refreshing...' : 'Refresh'}
+          </button>
         </div>
       </div>
 

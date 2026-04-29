@@ -5,16 +5,17 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useState, useEffect } from 'react';
-import { collection, query, onSnapshot, addDoc, serverTimestamp, doc, deleteDoc } from 'firebase/firestore';
+import { useState, useEffect, useCallback } from 'react';
+import { collection, query, getDocs, addDoc, serverTimestamp, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { Trash2, UserPlus, Loader2 } from 'lucide-react';
+import { Trash2, UserPlus, Loader2, RefreshCw } from 'lucide-react';
 
 export default function StaffTracking() {
   const { businessId } = useOutletContext();
   const [members, setMembers] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   
   // Add member form state
   const [inviteEmail, setInviteEmail] = useState('');
@@ -22,29 +23,35 @@ export default function StaffTracking() {
   const [inviteRole, setInviteRole] = useState('staff');
   const [addingMember, setAddingMember] = useState(false);
 
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
     if (!businessId) return;
+    try {
+      const membersQ = query(collection(db, `businesses/${businessId}/members`));
+      const feedbacksQ = query(collection(db, `businesses/${businessId}/feedbacks`));
 
-    // Load Members
-    const membersQ = query(collection(db, `businesses/${businessId}/members`));
-    const unsubscribeMembers = onSnapshot(membersQ, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setMembers(data);
-    });
+      const [memberSnap, feedbackSnap] = await Promise.all([
+        getDocs(membersQ),
+        getDocs(feedbacksQ)
+      ]);
 
-    // Load Feedbacks
-    const feedbacksQ = query(collection(db, `businesses/${businessId}/feedbacks`));
-    const unsubscribeFeedbacks = onSnapshot(feedbacksQ, (snapshot) => {
-      const fbData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setFeedbacks(fbData);
+      setMembers(memberSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setFeedbacks(feedbackSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    } catch (err) {
+      console.error("Staff tracking fetch error:", err);
+    } finally {
       setLoading(false);
-    });
-
-    return () => {
-      unsubscribeMembers();
-      unsubscribeFeedbacks();
-    };
+      setRefreshing(false);
+    }
   }, [businessId]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchData();
+  };
 
   const handleAddMember = async (e) => {
     e.preventDefault();
@@ -61,6 +68,7 @@ export default function StaffTracking() {
       setInviteEmail('');
       setInviteName('');
       setInviteRole('staff');
+      fetchData();
     } catch (err) {
       console.error("Failed to add member:", err);
       alert(err.message || "Failed to add member.");
@@ -73,6 +81,7 @@ export default function StaffTracking() {
     if (!businessId) return;
     try {
       await deleteDoc(doc(db, `businesses/${businessId}/members`, memberId));
+      fetchData();
     } catch (err) {
       console.error(err.message);
     }

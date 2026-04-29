@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useOutletContext } from 'react-router';
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
-import { Play, Pause, AlertCircle } from 'lucide-react';
+import { Play, Pause, AlertCircle, RefreshCw } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function FeedbackList() {
@@ -14,30 +14,41 @@ export default function FeedbackList() {
   const [members, setMembers] = useState([]);
   const [playingId, setPlayingId] = useState(null);
   const [audioSource, setAudioSource] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    if (!businessId) return;
+    try {
+      const qFeedbacks = query(
+        collection(db, `businesses/${businessId}/feedbacks`),
+        orderBy('createdAt', 'desc')
+      );
+      const qMembers = query(collection(db, `businesses/${businessId}/members`));
+
+      const [feedbackSnap, memberSnap] = await Promise.all([
+        getDocs(qFeedbacks),
+        getDocs(qMembers)
+      ]);
+
+      setFeedbacks(feedbackSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setMembers(memberSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    } catch (err) {
+      console.error("Feedback list fetch error:", err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [businessId]);
 
   useEffect(() => {
-    if (!businessId) return;
-    
-    // Fetch feedbacks
-    const qFeedbacks = query(
-      collection(db, `businesses/${businessId}/feedbacks`),
-      orderBy('createdAt', 'desc')
-    );
-    const unsubFeedbacks = onSnapshot(qFeedbacks, (snapshot) => {
-      setFeedbacks(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    }, (err) => console.error("Feedback list snapshot error:", err));
+    fetchData();
+  }, [fetchData]);
 
-    // Fetch members for assignment
-    const qMembers = query(collection(db, `businesses/${businessId}/members`));
-    const unsubMembers = onSnapshot(qMembers, (snapshot) => {
-      setMembers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    }, (err) => console.error("Members snapshot error:", err));
-
-    return () => {
-      unsubFeedbacks();
-      unsubMembers();
-    };
-  }, [businessId]);
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchData();
+  };
 
   const updateStatus = async (id, newStatus) => {
     if (!businessId) return;
@@ -45,6 +56,8 @@ export default function FeedbackList() {
       status: newStatus,
       updatedAt: serverTimestamp()
     });
+    // Refresh after update to reflect the change
+    fetchData();
   };
 
   const updateAssignee = async (id, assigneeId) => {
@@ -53,6 +66,7 @@ export default function FeedbackList() {
       assigneeId: assigneeId === 'unassigned' ? null : assigneeId,
       updatedAt: serverTimestamp()
     });
+    fetchData();
   };
 
   const playAudio = async (id, base64) => {
@@ -111,16 +125,30 @@ export default function FeedbackList() {
     }
   };
 
+  if (loading) {
+    return <div className="text-sm font-medium text-muted-foreground">Loading feedback...</div>;
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-2">
-        <h2 className="text-3xl font-semibold tracking-tight">Feedback Inbox</h2>
-        <p className="text-muted-foreground">Manage and resolve customer experiences.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col gap-2">
+          <h2 className="text-3xl font-semibold tracking-tight">Feedback Inbox</h2>
+          <p className="text-muted-foreground">Manage and resolve customer experiences.</p>
+        </div>
+        <button 
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground bg-secondary/50 hover:bg-secondary transition-all active:scale-95 self-start"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+          {refreshing ? 'Refreshing...' : 'Refresh'}
+        </button>
       </div>
 
       <div className="space-y-4">
         {feedbacks.map((fb) => (
-          <Card key={fb.id} className="p-6 transition-colors hover:bg-neutral-50/50 dark:hover:bg-zinc-900/50">
+          <Card key={fb.id} className="p-6 transition-colors hover:bg-secondary/30">
             <div className="flex flex-col md:flex-row md:gap-8">
               {/* Audio & Score Column */}
               <div className="flex-shrink-0 flex md:flex-col items-center gap-4 md:w-32 mb-4 md:mb-0 pb-4 md:pb-0 border-b md:border-b-0 md:border-r border-border">
@@ -150,7 +178,7 @@ export default function FeedbackList() {
                     {fb.createdAt?.toDate ? format(fb.createdAt.toDate(), 'MMM d, h:mm a') : 'Just now'}
                   </span>
                   {fb.sentiment === 'negative' && (
-                    <span className="flex items-center text-xs text-rose-500 font-medium ml-auto">
+                    <span className="flex items-center text-xs text-destructive font-medium ml-auto">
                       <AlertCircle className="w-3.5 h-3.5 mr-1" />
                       Critical
                     </span>
@@ -163,7 +191,7 @@ export default function FeedbackList() {
                   </p>
 
                   {fb.customerContact && (
-                    <div className="flex items-center text-sm font-medium text-muted-foreground bg-neutral-100 dark:bg-zinc-800/50 w-fit px-3 py-1.5 rounded-md border border-neutral-200 dark:border-zinc-700">
+                    <div className="flex items-center text-sm font-medium text-muted-foreground bg-secondary/50 w-fit px-3 py-1.5 rounded-md border border-border">
                       <span className="mr-2 text-[10px] uppercase font-bold tracking-wider opacity-70">Contact:</span> 
                       {fb.customerContact}
                     </div>
@@ -215,9 +243,9 @@ export default function FeedbackList() {
         ))}
 
         {feedbacks.length === 0 && (
-          <div className="text-center py-16 px-4 bg-white rounded-lg border border-dashed">
-            <h3 className="text-lg font-medium text-neutral-900 mb-1">Inbox Zero</h3>
-            <p className="text-neutral-500 text-sm">No feedback has been captured yet.</p>
+          <div className="text-center py-16 px-4 bg-card rounded-lg border border-dashed border-border">
+            <h3 className="text-lg font-medium text-foreground mb-1">Inbox Zero</h3>
+            <p className="text-muted-foreground text-sm">No feedback has been captured yet.</p>
           </div>
         )}
       </div>

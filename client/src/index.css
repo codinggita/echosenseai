@@ -54,7 +54,7 @@
 }
 
 :root {
-    --background: oklch(0.985 0.002 247.839);
+    --background: oklch(0.96 0.005 250);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
     --card-foreground: oklch(0.145 0 0);
@@ -134,4 +134,15 @@
   html {
     @apply font-sans;
     }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  * {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
 }

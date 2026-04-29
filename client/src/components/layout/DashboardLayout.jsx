@@ -1,10 +1,11 @@
                                                import { useEffect, useState, useRef } from 'react';
 import { Outlet, Link, useLocation } from 'react-router';
-import { LayoutDashboard, MessageSquare, Settings as SettingsIcon, LogOut, Loader2, Volume2, Moon, Sun, BrainCircuit, Users, Sparkles, BarChart3, Menu, X } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, Settings as SettingsIcon, LogOut, Loader2, Volume2, Moon, Sun, BrainCircuit, Users, Sparkles, BarChart3, Menu, X, ChevronRight } from 'lucide-react';
 import { auth, db } from '../../lib/firebase';
 import { signOut } from 'firebase/auth';
 import { collection, query, where, getDocs, doc, setDoc, serverTimestamp, onSnapshot, orderBy, limit } from 'firebase/firestore';
 import { Toaster, toast } from 'sonner';
+import { motion, AnimatePresence } from 'motion/react';
 
 const NAV_ITEMS = [
   { to: '/', label: 'Overview', icon: LayoutDashboard },
@@ -26,6 +27,7 @@ export default function DashboardLayout() {
   const [loading, setLoading] = useState(true);
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
   const [scrolled, setScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const lastFeedbackIdRef = useRef(null);
 
   useEffect(() => {
@@ -238,33 +240,119 @@ export default function DashboardLayout() {
         </div>
       </div>
 
-      {/* ── Mobile Top Bar ── */}
-      <div className="md:hidden flex items-center justify-between px-4 h-14 bg-card/80 backdrop-blur-xl border-b border-border/40 z-40 shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-accent to-[#7c3aed] flex items-center justify-center">
-            <Volume2 className="h-3.5 w-3.5 text-white" />
+      {/* ── Mobile Header ── */}
+      <div className="md:hidden flex items-center justify-between px-4 h-16 bg-background/80 backdrop-blur-xl border-b border-border/40 z-40 shrink-0 sticky top-0">
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="w-10 h-10 rounded-xl flex items-center justify-center bg-secondary/50 text-foreground"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-accent to-[#7c3aed] flex items-center justify-center">
+              <Volume2 className="h-3.5 w-3.5 text-white" />
+            </div>
+            <span className="font-bold text-[15px] tracking-tight text-foreground">
+              Klyvora<span className="text-accent">AI</span>
+            </span>
           </div>
-          <span className="font-bold text-sm tracking-tight text-foreground">
-            Klyvora<span className="text-accent">AI</span>
-          </span>
         </div>
-        <div className="flex items-center gap-1">
-          <button 
-            onClick={toggleTheme} 
-            className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground"
-            aria-label="Toggle Dark Mode"
-          >
-            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          </button>
-          <button 
-            onClick={handleLogout}
-            className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive"
-            aria-label="Sign Out"
-          >
-            <LogOut className="w-4 h-4" />
-          </button>
-        </div>
+        
+        <Link to="profile" className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-[10px] font-bold text-white shadow-sm shadow-accent/20">
+          {auth.currentUser?.email?.[0]?.toUpperCase()}
+        </Link>
       </div>
+
+      {/* ═══════════════════════════════════════════════ */}
+      {/* MOBILE DRAWER SYSTEM                           */}
+      {/* ═══════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] md:hidden"
+            />
+            
+            {/* Drawer */}
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed top-0 left-0 bottom-0 w-[280px] bg-card border-r border-border/50 z-[70] md:hidden flex flex-col"
+            >
+              <div className="p-6 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center shadow-lg shadow-accent/20">
+                    <Volume2 className="h-4 w-4 text-white" />
+                  </div>
+                  <span className="font-bold text-lg text-foreground">KlyvoraAI</span>
+                </div>
+                <button 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-9 h-9 rounded-full flex items-center justify-center bg-secondary/50 text-muted-foreground"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <nav className="flex-1 px-4 py-2 space-y-1">
+                {allNavItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = location.pathname === item.to;
+                  return (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`flex items-center justify-between p-3.5 rounded-2xl transition-all duration-300 ${
+                        isActive 
+                          ? 'bg-accent text-white shadow-lg shadow-accent/20' 
+                          : 'text-muted-foreground hover:bg-secondary/50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon className="w-5 h-5" />
+                        <span className="font-semibold text-sm">{item.label}</span>
+                      </div>
+                      {isActive && <ChevronRight className="w-4 h-4 opacity-70" />}
+                    </Link>
+                  );
+                })}
+              </nav>
+
+              <div className="p-6 border-t border-border/40 space-y-3">
+                <button 
+                  onClick={() => {
+                    toggleTheme();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-secondary/30 text-foreground transition-all active:scale-95"
+                >
+                  <div className="flex items-center gap-3">
+                    {isDark ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5 text-indigo-500" />}
+                    <span className="font-semibold text-sm">{isDark ? 'Light Mode' : 'Dark Mode'}</span>
+                  </div>
+                </button>
+                
+                <button 
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 p-3.5 rounded-2xl text-destructive hover:bg-destructive/10 transition-all font-semibold text-sm active:scale-95"
+                >
+                  <LogOut className="w-5 h-5" />
+                  Sign Out
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* ═══════════════════════════════════════════════ */}
       {/* MAIN CONTENT AREA                              */}
@@ -273,7 +361,7 @@ export default function DashboardLayout() {
         {/* Desktop: spacer for floating nav */}
         <div className="hidden md:block h-20" />
         
-        <div className="max-w-[1280px] mx-auto px-4 md:px-8 lg:px-12 py-4 md:py-6 pb-20 md:pb-8">
+        <div className="max-w-[1280px] mx-auto px-4 md:px-8 lg:px-12 py-4 md:py-6 pb-8">
           {/* Breadcrumb - desktop only */}
           <div className="hidden md:flex items-center gap-2 mb-6">
             <span className="text-muted-foreground text-xs font-medium">KlyvoraAI</span>
@@ -284,50 +372,6 @@ export default function DashboardLayout() {
           <Outlet context={{ businessId }} />
         </div>
       </main>
-      
-      {/* ═══════════════════════════════════════════════ */}
-      {/* MOBILE BOTTOM NAVIGATION                       */}
-      {/* ═══════════════════════════════════════════════ */}
-      <div className="md:hidden fixed bottom-3 left-3 right-3 z-50">
-        <div className="floating-pill-mobile flex items-center justify-around py-2 px-1">
-          {allNavItems.slice(0, 5).map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.to;
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={`flex flex-col items-center justify-center gap-0.5 py-1.5 px-2 rounded-2xl min-w-[48px] transition-all duration-300 ${
-                  isActive
-                    ? 'text-accent'
-                    : 'text-muted-foreground'
-                }`}
-              >
-                <div className={`relative p-1 rounded-xl transition-all duration-300 ${isActive ? 'bg-accent/10' : ''}`}>
-                  <Icon className="w-5 h-5" />
-                  {isActive && <div className="absolute inset-0 rounded-xl bg-accent/10 blur-md -z-10" />}
-                </div>
-                <span className="text-[9px] font-bold tracking-wider uppercase">{item.label.split(' ')[0]}</span>
-              </Link>
-            );
-          })}
-          {memberRole === 'admin' && allNavItems.length > 5 && (
-            <Link
-              to={allNavItems[5].to}
-              className={`flex flex-col items-center justify-center gap-0.5 py-1.5 px-2 rounded-2xl min-w-[48px] transition-all duration-300 ${
-                location.pathname === allNavItems[5].to
-                  ? 'text-accent'
-                  : 'text-muted-foreground'
-              }`}
-            >
-              <div className={`relative p-1 rounded-xl transition-all duration-300 ${location.pathname === allNavItems[5].to ? 'bg-accent/10' : ''}`}>
-                <SettingsIcon className="w-5 h-5" />
-              </div>
-              <span className="text-[9px] font-bold tracking-wider uppercase">Settings</span>
-            </Link>
-          )}
-        </div>
-      </div>
 
       <Toaster position="top-right" richColors />
 
@@ -346,16 +390,17 @@ export default function DashboardLayout() {
           animation: floatIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
 
-        .floating-pill-mobile {
-          background: rgba(255, 255, 255, 0.78);
+        .floating-pill {
+          background: rgba(255, 255, 255, 0.72);
           backdrop-filter: blur(24px) saturate(180%);
           -webkit-backdrop-filter: blur(24px) saturate(180%);
-          border-radius: 24px;
+          border-radius: 9999px;
           border: 1px solid rgba(0, 0, 0, 0.04);
           box-shadow: 
-            0 8px 32px -4px rgba(0, 0, 0, 0.1),
-            0 2px 8px rgba(0, 0, 0, 0.04),
+            0 4px 24px -1px rgba(0, 0, 0, 0.06),
+            0 1px 3px rgba(0, 0, 0, 0.04),
             inset 0 1px 0 rgba(255, 255, 255, 0.6);
+          animation: floatIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
 
         :is(.dark) .floating-pill {
@@ -364,15 +409,6 @@ export default function DashboardLayout() {
           box-shadow: 
             0 4px 24px -1px rgba(0, 0, 0, 0.25),
             0 1px 3px rgba(0, 0, 0, 0.15),
-            inset 0 1px 0 rgba(255, 255, 255, 0.04);
-        }
-
-        :is(.dark) .floating-pill-mobile {
-          background: rgba(30, 32, 40, 0.82);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          box-shadow: 
-            0 8px 32px -4px rgba(0, 0, 0, 0.4),
-            0 2px 8px rgba(0, 0, 0, 0.2),
             inset 0 1px 0 rgba(255, 255, 255, 0.04);
         }
 

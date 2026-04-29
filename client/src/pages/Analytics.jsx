@@ -2,32 +2,43 @@ import { useOutletContext } from 'react-router';
 import { motion } from 'motion/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-import { BrainCircuit, Zap, TrendingUp } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { BrainCircuit, Zap, TrendingUp, RefreshCw } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
 export default function Analytics() {
   const { businessId } = useOutletContext();
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
     if (!businessId) return;
-
-    const q = query(
-      collection(db, `businesses/${businessId}/feedbacks`),
-      orderBy('createdAt', 'desc')
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    try {
+      const q = query(
+        collection(db, `businesses/${businessId}/feedbacks`),
+        orderBy('createdAt', 'desc')
+      );
+      const snapshot = await getDocs(q);
       const fbData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setFeedbacks(fbData);
+    } catch (err) {
+      console.error("Analytics fetch error:", err);
+    } finally {
       setLoading(false);
-    });
-
-    return () => unsubscribe();
+      setRefreshing(false);
+    }
   }, [businessId]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchData();
+  };
 
   if (loading || !businessId) {
     return <div className="text-sm text-muted-foreground animate-pulse">Loading intelligence models...</div>;
@@ -94,9 +105,19 @@ export default function Analytics() {
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-8 pb-10">
-      <div>
-        <h2 className="text-3xl font-extrabold tracking-tight">Intelligence</h2>
-        <p className="text-muted-foreground mt-1 font-medium">Deep-dive customer behavior and topic extraction.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 className="text-3xl font-extrabold tracking-tight">Intelligence</h2>
+          <p className="text-muted-foreground mt-1 font-medium">Deep-dive customer behavior and topic extraction.</p>
+        </div>
+        <button 
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground bg-secondary/50 hover:bg-secondary transition-all active:scale-95 self-start"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+          {refreshing ? 'Refreshing...' : 'Refresh'}
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
