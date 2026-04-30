@@ -80,7 +80,7 @@ export default function Login() {
               </div>
               <div className="flex-1">
                 <h3 className="font-bold tracking-tight text-lg text-foreground mb-1">AI-Powered Speech Analytics</h3>
-                <p className="text-sm font-medium text-muted-foreground leading-relaxed">Turn customer voice recordings into structured data in seconds. EchoSense detects emotion, sentiment, and tracks critical issues automatically.</p>
+                <p className="text-sm font-medium text-muted-foreground leading-relaxed">Turn customer voice recordings into structured data in seconds. Klyvora detects emotion, sentiment, and tracks critical issues automatically.</p>
               </div>
             </div>
 
