@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { auth, db } from '../lib/firebase';
 import { collection, query, orderBy, getDocs } from 'firebase/firestore';
+import { Helmet } from 'react-helmet-async';
 
 // ─── Constants ───────────────────────────────────────
 const INSIGHT_ICONS = { trend: TrendingUp, pattern: Clock, issue: AlertTriangle };
@@ -317,6 +318,9 @@ export default function AIInsights() {
 
   return (
     <motion.div variants={containerAnim} initial="hidden" animate="show" className="space-y-6 pb-10">
+      <Helmet>
+        <title>AI Insights | Klyvora AI</title>
+      </Helmet>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>

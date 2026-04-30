@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { motion, useScroll, useTransform, useSpring } from 'motion/react';
 import { useNavigate } from 'react-router';
 import { ArrowDown, Sparkles, BrainCircuit, Mic, BarChart3, ChevronRight, CheckCircle2, Shield, Zap } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -49,6 +50,9 @@ export default function Landing() {
   return (
     // Increased height to 500vh to fit more content smoothly
     <div ref={containerRef} className="h-[500vh] bg-zinc-950 text-zinc-50 selection:bg-zinc-800">
+      <Helmet>
+        <title>Klyvora AI | Intelligent Feedback Analysis</title>
+      </Helmet>
       
       {/* 
         STICKY WRAPPER
