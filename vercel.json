@@ -19,7 +19,7 @@
       "dest": "server/index.js"
     },
     {
-      "src": "/(sitemap\\.xml|robots\\.txt|favicon\\.svg|google.*\\.html)",
+      "src": "/(assets/.*|sitemap\\.xml|robots\\.txt|favicon\\.svg|google.*\\.html)",
       "dest": "client/$1"
     },
     {
