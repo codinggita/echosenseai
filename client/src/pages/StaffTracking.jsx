@@ -9,6 +9,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { collection, query, getDocs, addDoc, serverTimestamp, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Trash2, UserPlus, Loader2, RefreshCw } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 
 export default function StaffTracking() {
   const { businessId } = useOutletContext();
@@ -131,6 +132,9 @@ export default function StaffTracking() {
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-8 pb-10 max-w-6xl">
+      <Helmet>
+        <title>Staff Tracking | Klyvora AI</title>
+      </Helmet>
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h2 className="text-3xl font-extrabold tracking-tight">Staff Roster</h2>

@@ -7,6 +7,7 @@ import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from 'rec
 import { format, subDays } from 'date-fns';
 import { motion } from 'motion/react';
 import { RefreshCw } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 
 export default function DashboardHome() {
   const { businessId } = useOutletContext();
@@ -85,6 +86,9 @@ export default function DashboardHome() {
 
   return (
     <motion.div variants={containerAnimations} initial="hidden" animate="show" className="h-full flex flex-col">
+      <Helmet>
+        <title>Dashboard | Klyvora AI</title>
+      </Helmet>
       
       {/* Refresh Button */}
       <div className="flex justify-end mb-4">

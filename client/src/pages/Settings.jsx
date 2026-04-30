@@ -9,6 +9,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { Copy, ExternalLink, ShieldCheck, KeyRound, MonitorSmartphone, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Helmet } from 'react-helmet-async';
 
 export default function Settings() {
   const { businessId } = useOutletContext();
@@ -65,6 +66,9 @@ export default function Settings() {
 
   return (
     <div className="space-y-8 max-w-4xl">
+      <Helmet>
+        <title>Settings | Klyvora AI</title>
+      </Helmet>
       <div>
         <h2 className="text-3xl font-semibold tracking-tight">Settings</h2>
         <p className="text-muted-foreground mt-1">Configure your workspace and feedback channels.</p>

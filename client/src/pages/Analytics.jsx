@@ -6,6 +6,7 @@ import { BrainCircuit, Zap, TrendingUp, RefreshCw } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { Helmet } from 'react-helmet-async';
 
 export default function Analytics() {
   const { businessId } = useOutletContext();
@@ -105,6 +106,9 @@ export default function Analytics() {
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-8 pb-10">
+      <Helmet>
+        <title>Intelligence | Klyvora AI</title>
+      </Helmet>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-3xl font-extrabold tracking-tight">Intelligence</h2>

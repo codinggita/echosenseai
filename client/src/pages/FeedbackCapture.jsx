@@ -4,6 +4,7 @@ import { collection, addDoc, serverTimestamp, doc, getDoc, updateDoc } from 'fir
 import { db } from '../lib/firebase';
 import { Mic, Square, CheckCircle2, AlertCircle, BrainCircuit, Moon, Sun } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { Helmet } from 'react-helmet-async';
 
 export default function FeedbackCapture() {
   const { businessId } = useParams();
@@ -298,6 +299,9 @@ export default function FeedbackCapture() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4 selection:bg-accent/20 relative">
+      <Helmet>
+        <title>Provide Feedback | Klyvora AI</title>
+      </Helmet>
       <button onClick={toggleTheme} className="absolute top-6 right-6 p-2 rounded-full bg-neutral-100 hover:bg-neutral-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-neutral-600 dark:text-neutral-400 transition-colors z-50">
         {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
       </button>

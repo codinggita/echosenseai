@@ -3,6 +3,7 @@ import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { Volume2, Sparkles, Activity, MessageSquareQuote, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
@@ -24,6 +25,9 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 selection:bg-accent/20">
+      <Helmet>
+        <title>Login | Klyvora AI</title>
+      </Helmet>
       
       <div className="w-full max-w-5xl mx-auto flex flex-col md:flex-row gap-8 items-center justify-center">
         
