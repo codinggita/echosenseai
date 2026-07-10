@@ -1,6 +1,6 @@
                                                import { useEffect, useState, useRef } from 'react';
 import { Outlet, Link, useLocation } from 'react-router';
-import { LayoutDashboard, MessageSquare, Settings as SettingsIcon, LogOut, Loader2, Volume2, Moon, Sun, BrainCircuit, Users, Sparkles, BarChart3, Menu, X, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, Settings as SettingsIcon, LogOut, Loader2, Volume2, Moon, Sun, BrainCircuit, Users, Sparkles, BarChart3, Menu, X, ChevronRight, Paintbrush } from 'lucide-react';
 import { auth, db } from '../../lib/firebase';
 import { signOut } from 'firebase/auth';
 import { collection, query, where, getDocs, doc, setDoc, serverTimestamp, onSnapshot, orderBy, limit } from 'firebase/firestore';
@@ -16,6 +16,7 @@ const NAV_ITEMS = [
 
 const ADMIN_NAV_ITEMS = [
   { to: '/staff', label: 'Staff', icon: Users },
+  { to: '/branding', label: 'Branding', icon: Paintbrush },
   { to: '/settings', label: 'Settings', icon: SettingsIcon },
 ];
 

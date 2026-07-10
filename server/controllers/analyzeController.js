@@ -1,106 +1,75 @@
-import Groq from "groq-sdk";
-import fs from "fs";
-import os from "os";
-import path from "path";
+/**
+ * KlyvoraAI — Analyze Controller
+ * ────────────────────────────────
+ * HTTP handler for the /api/analyze endpoint.
+ *
+ * This controller does NOT contain any AI or business logic.
+ * It only:
+ *   1. Validates and marshals HTTP input
+ *   2. Delegates to AIService
+ *   3. Formats the HTTP response
+ *
+ * Architecture:
+ *   HTTP Request → analyzeController → AIService → CustomerIntelligenceAgent → Runtime → LLM
+ *
+ * The controller never imports Groq, any LLM SDK, or memory systems.
+ */
+
+import { AIService } from '../ai/AIService.js';
 
 export const analyzeFeedback = async (req, res) => {
   try {
-    let { text, audioBase64 } = req.body;
-    const apiKey = process.env.GROQ_API_KEY;
-    
-    if (!apiKey) {
-      throw new Error("GROQ_API_KEY is not configured in the .env file.");
+    const {
+      text,
+      audioBase64,
+      organizationId,
+      organizationName,
+      branchId,
+      branchName,
+      source,
+      customerContact,
+      template,
+      industry,
+    } = req.body;
+
+    // Basic input validation
+    if (!text && !audioBase64) {
+      return res.status(400).json({
+        error: 'Either text or audioBase64 must be provided.',
+        code: 'MISSING_INPUT',
+      });
     }
 
-    const groq = new Groq({ apiKey });
-
-    // Overwrite browser speech-to-text with actual backend Whisper processing if audio is provided
-    if (audioBase64) {
-      try {
-        // Parse prefixed extension: "mp4|base64string..."
-        const parts = audioBase64.split('|');
-        let ext = 'webm';
-        let pureBase64 = audioBase64;
-        
-        if (parts.length > 1) {
-          ext = parts[0];
-          pureBase64 = parts[1];
-        }
-
-        // Decode the base64 string
-        const buffer = Buffer.from(pureBase64, 'base64');
-        // Temporarily write the audio to the filesystem for Groq to read as a Filestream stream
-        const tempFilePath = path.join(os.tmpdir(), `audio-${Date.now()}.${ext}`);
-        fs.writeFileSync(tempFilePath, buffer);
-        
-        const transcription = await groq.audio.transcriptions.create({
-          file: fs.createReadStream(tempFilePath),
-          model: "whisper-large-v3-turbo",
-        });
-        
-        text = transcription.text;
-        console.log("Whisper transcribed audio:", text);
-        
-        fs.unlinkSync(tempFilePath); // Cleanup
-      } catch (whisperError) {
-        console.error("Whisper Audio Transcription Error:", whisperError);
-        // If whisper fails, safely fallback to whatever the browser gave us
-      }
-    }
-
-    if (!text || text.trim() === 'No clear audio transcribed.') {
-       return res.json({
-          text: "No clear audio transcribed.",
-          sentiment: "neutral",
-          emotion: "neutral",
-          score: 20,
-          topics: []
-       });
-    }
-
-    const completion = await groq.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content: "You are an expert customer experience analyzer. Extract the exact required fields based on the raw spoken text provided by the customer. Be objective and precise.\n\nCRITICAL AI RULES:\n1. IF the text is a short test, ambiguous, just a greeting (e.g. \"test\", \"hello\", \"testing microphone\"), or lacks strong negative words, YOU MUST classify sentiment and emotion as \"neutral\". Do NOT assume negative intent.\n2. You must respond ONLY with a strict JSON object matching this exact structure:\n{\n  \"sentiment\": \"positive|neutral|negative\",\n  \"emotion\": \"happy|frustrated|angry|neutral\",\n  \"score\": <number from 0 to 100>,\n  \"topics\": [\"topic1\", \"topic2\"]\n}"
-        },
-        {
-          role: "user",
-          content: `Feedback text: "${text}"`
-        }
-      ],
-      model: "llama-3.3-70b-versatile",
-      temperature: 0,
-      response_format: { type: "json_object" },
+    // Delegate entirely to AI Service (which routes to Agent → Runtime → LLM)
+    const result = await AIService.analyzeFeedback({
+      text,
+      audioBase64,
+      // Organization context - required for memory isolation and security
+      organizationId: organizationId || null,
+      organizationName: organizationName || 'Unknown Organization',
+      branchId: branchId || null,
+      branchName: branchName || null,
+      source: source || 'link',
+      customerContact: customerContact || null,
+      template: template || null,
+      industry: industry || null,
     });
 
-    const rawJson = completion.choices[0]?.message?.content || "{}";
-    let parsed = { sentiment: "neutral", emotion: "neutral", score: 50, topics: [] };
-    try {
-      parsed = JSON.parse(rawJson);
-    } catch (e) {
-      console.error("JSON parse error:", e);
+    if (!result.success && result.error) {
+      return res.status(500).json({
+        error: result.error,
+        code: 'AI_ANALYSIS_FAILED',
+      });
     }
 
-    const validSentiments = ['positive', 'neutral', 'negative'];
-    const validEmotions = ['happy', 'frustrated', 'angry', 'neutral'];
+    // Return structured response (backward-compatible with existing frontend)
+    return res.json(result);
 
-    const finalSentiment = String(parsed.sentiment || 'neutral').toLowerCase();
-    const finalEmotion = String(parsed.emotion || 'neutral').toLowerCase();
-
-    const finalPayload = {
-      text: String(text).slice(0, 1999), 
-      sentiment: validSentiments.includes(finalSentiment) ? finalSentiment : 'neutral',
-      emotion: validEmotions.includes(finalEmotion) ? finalEmotion : 'neutral',
-      score: Math.min(100, Math.max(0, Number(parsed.score) || 50)),
-      topics: Array.isArray(parsed.topics) ? parsed.topics.map(t => String(t).slice(0, 50)).slice(0, 10) : []
-    };
-
-    console.log("SERVER OUTPUTTING JSON TO FRONTEND:", JSON.stringify(finalPayload, null, 2));
-
-    res.json(finalPayload);
   } catch (error) {
-    console.error("Analysis Error:", error);
-    res.status(500).json({ error: error.message || "Failed to analyze feedback" });
+    console.error('[analyzeController] Unhandled error:', error);
+    return res.status(500).json({
+      error: error.message || 'Failed to analyze feedback.',
+      code: 'INTERNAL_ERROR',
+    });
   }
 };

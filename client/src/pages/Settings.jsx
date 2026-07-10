@@ -1,61 +1,19 @@
-import { useState, useEffect } from 'react';
-import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../lib/firebase';
 import { useOutletContext } from 'react-router';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Link } from 'react-router';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { QRCodeSVG } from 'qrcode.react';
-import { Copy, ExternalLink, ShieldCheck, KeyRound, MonitorSmartphone, Heart } from 'lucide-react';
+import { Copy, ExternalLink, ShieldCheck, Paintbrush, ArrowRight, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Helmet } from 'react-helmet-async';
 
+
+
 export default function Settings() {
   const { businessId } = useOutletContext();
-  
-  const [kioskConfig, setKioskConfig] = useState({
-    kioskTitle: 'How was your experience?',
-    kioskMessage: 'Tap the microphone and speak briefly.',
-    collectContact: false
-  });
-  const [savingKiosk, setSavingKiosk] = useState(false);
 
-  useEffect(() => {
-    if (!businessId) return;
-    const fetchBiz = async () => {
-      const d = await getDoc(doc(db, 'businesses', businessId));
-      if (d.exists()) {
-        const data = d.data();
-        setKioskConfig({
-          kioskTitle: data.kioskTitle || 'How was your experience?',
-          kioskMessage: data.kioskMessage || 'Tap the microphone and speak briefly.',
-          collectContact: data.collectContact || false
-        });
-      }
-    };
-    fetchBiz();
-  }, [businessId]);
-
-  const handleSaveKiosk = async () => {
-    if (!businessId) return;
-    setSavingKiosk(true);
-    try {
-      await updateDoc(doc(db, 'businesses', businessId), {
-        kioskTitle: kioskConfig.kioskTitle,
-        kioskMessage: kioskConfig.kioskMessage,
-        collectContact: kioskConfig.collectContact,
-        updatedAt: serverTimestamp()
-      });
-      // Optionally show a toast here if sonner is available
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setSavingKiosk(false);
-    }
-  };
-
-  
   if (!businessId) return null;
 
   const captureUrl = `${window.location.origin}/capture/${businessId}`;
@@ -114,54 +72,30 @@ export default function Settings() {
           </CardContent>
         </Card>
 
-        {/* Kiosk Customization Card */}
-        <Card className="md:col-span-2 border shadow-sm">
-          <CardHeader className="bg-secondary/30 border-b border-border pb-4">
-            <div className="flex items-center gap-2">
-               <MonitorSmartphone className="w-5 h-5 text-muted-foreground" />
-               <CardTitle>Kiosk Customization</CardTitle>
+        {/* Branding Studio Card */}
+        <Card className="md:col-span-2 border shadow-sm overflow-hidden">
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
+                <Paintbrush className="w-5 h-5 text-accent" />
+              </div>
+              <div>
+                <CardTitle>Kiosk Branding Studio</CardTitle>
+                <CardDescription>Customize colors, typography, logos, and screens.</CardDescription>
+              </div>
             </div>
-            <CardDescription>
-              Personalize the feedback capture screen your customers interact with.
-            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6 pt-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label>Greeting Title</Label>
-                <Input 
-                  value={kioskConfig.kioskTitle} 
-                  onChange={(e) => setKioskConfig(prev => ({...prev, kioskTitle: e.target.value}))}
-                  placeholder="E.g. How was your experience?" 
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Instruction Subtitle</Label>
-                <Input 
-                  value={kioskConfig.kioskMessage} 
-                  onChange={(e) => setKioskConfig(prev => ({...prev, kioskMessage: e.target.value}))}
-                  placeholder="E.g. Tap the microphone and speak briefly." 
-                />
-              </div>
-            </div>
-            <div className="flex items-start md:items-center justify-between p-4 border border-border rounded-lg bg-secondary/30 flex-col md:flex-row gap-4">
-              <div className="space-y-1">
-                <Label className="text-sm font-semibold">Request Customer Contact</Label>
-                <p className="text-xs text-muted-foreground w-full max-w-sm">After processing the feedback, ask customers for their email or phone number for follow-ups.</p>
-              </div>
-              <div 
-                onClick={() => setKioskConfig(prev => ({...prev, collectContact: !prev.collectContact}))}
-                className={`flex-shrink-0 h-6 w-11 rounded-full relative cursor-pointer transition-colors duration-200 border ${kioskConfig.collectContact ? 'bg-foreground border-foreground' : 'bg-secondary border-border'}`}
-              >
-                <div className={`absolute top-[2px] w-4 h-4 rounded-full bg-card transition-all duration-200 shadow-sm ${kioskConfig.collectContact ? 'left-[22px]' : 'left-[2px]'}`}></div>
-              </div>
-            </div>
+          <CardContent className="pb-6">
+            <p className="text-sm text-muted-foreground mb-4">
+              Launch the full Branding Studio to design your kiosk with a real-time live preview. 
+              Change colors, upload your logo, edit screen text, and see every change instantly.
+            </p>
+            <Link to="/branding">
+              <Button className="gap-2">
+                Open Branding Studio <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
           </CardContent>
-          <CardFooter className="bg-secondary/30 flex justify-end p-4 border-t border-border">
-            <Button onClick={handleSaveKiosk} disabled={savingKiosk} size="sm">
-              {savingKiosk ? 'Saving...' : 'Save Configuration'}
-            </Button>
-          </CardFooter>
         </Card>
 
         <Card>

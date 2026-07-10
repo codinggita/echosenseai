@@ -13,6 +13,7 @@ import Settings from './pages/Settings';
 import Landing from './pages/Landing';
 import FeedbackCapture from './pages/FeedbackCapture';
 import Profile from './pages/Profile';
+import BrandingStudio from './pages/BrandingStudio';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -55,6 +56,7 @@ function App() {
         <Route path="staff" element={<StaffTracking />} />
         <Route path="settings" element={<Settings />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="branding" element={<BrandingStudio />} />
       </Route>
       
       {/* Fallback */}

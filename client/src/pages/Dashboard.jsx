@@ -52,10 +52,10 @@ export default function DashboardHome() {
 
   // Calculate metrics
   const totalFeedback = feedbacks.length;
-  const avgScore = totalFeedback > 0 
+  const avgScore = totalFeedback > 0
     ? Math.round(feedbacks.reduce((acc, curr) => acc + (curr.score || 50), 0) / totalFeedback)
     : 0;
-  
+
   const negativeCount = feedbacks.filter(f => f.sentiment === 'negative').length;
   const positiveCount = feedbacks.filter(f => f.sentiment === 'positive').length;
   const neutralCount = feedbacks.filter(f => f.sentiment === 'neutral').length;
@@ -89,10 +89,10 @@ export default function DashboardHome() {
       <Helmet>
         <title>Dashboard | Klyvora AI</title>
       </Helmet>
-      
+
       {/* Refresh Button */}
       <div className="flex justify-end mb-4">
-        <button 
+        <button
           onClick={handleRefresh}
           disabled={refreshing}
           className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground bg-secondary/50 hover:bg-secondary transition-all active:scale-95"
@@ -103,7 +103,7 @@ export default function DashboardHome() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 md:grid-rows-6 gap-4 min-h-[700px] h-full pb-10">
-        
+
         <motion.div variants={itemAnimations} className="md:col-span-4 lg:col-span-3 md:row-span-2 flex flex-col">
           <Card className="h-full flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow p-5 rounded-xl">
             <div className="text-xs font-semibold uppercase tracking-[0.05em] text-muted-foreground mb-3">Average Sentiment</div>
@@ -118,7 +118,7 @@ export default function DashboardHome() {
             </div>
           </Card>
         </motion.div>
-        
+
         {/* Card 2: Voice Feedback Volume */}
         <motion.div variants={itemAnimations} className="md:col-span-4 lg:col-span-3 md:row-span-2 flex flex-col">
           <Card className="h-full flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow p-5 rounded-xl">
@@ -143,36 +143,36 @@ export default function DashboardHome() {
         <motion.div variants={itemAnimations} className="md:col-span-4 lg:col-span-6 md:row-span-2 flex flex-col">
           <Card className="h-full flex flex-col shadow-sm hover:shadow-md transition-shadow p-5 rounded-xl overflow-hidden group">
             <div className="flex justify-between items-center mb-3 shrink-0">
-               <div className="text-xs font-semibold uppercase tracking-[0.05em] text-muted-foreground">Recent Feedback</div>
-               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+              <div className="text-xs font-semibold uppercase tracking-[0.05em] text-muted-foreground">Recent Feedback</div>
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
             </div>
-          <div className="flex flex-col gap-3 overflow-auto flex-1">
-            {feedbacks.slice(0, 3).map((fb, idx) => (
-              <div key={fb.id} className={`flex gap-3 items-center ${idx > 0 ? 'opacity-60' : ''}`}>
-                <div className="flex items-center gap-[3px] h-8 shrink-0">
-                  <div className={`w-1 rounded-full ${idx === 0 ? 'bg-accent' : 'bg-muted-foreground/40'} h-3`}></div>
-                  <div className={`w-1 rounded-full ${idx === 0 ? 'bg-accent' : 'bg-muted-foreground/40'} h-6`}></div>
-                  <div className={`w-1 rounded-full ${idx === 0 ? 'bg-accent' : 'bg-muted-foreground/40'} h-4`}></div>
-                </div>
-                <div className="flex-grow min-w-0">
-                  <div className="text-[13px] font-medium truncate">{fb.text}</div>
-                  <div className="text-[11px] text-muted-foreground mt-0.5 truncate border-separate">
-                    Recorded {fb.createdAt?.toDate ? format(fb.createdAt.toDate(), 'h:mm a') : 'Now'} &bull; {fb.emotion} &bull; {fb.source}
+            <div className="flex flex-col gap-3 overflow-auto flex-1">
+              {feedbacks.slice(0, 3).map((fb, idx) => (
+                <div key={fb.id} className={`flex gap-3 items-center ${idx > 0 ? 'opacity-60' : ''}`}>
+                  <div className="flex items-center gap-[3px] h-8 shrink-0">
+                    <div className={`w-1 rounded-full ${idx === 0 ? 'bg-accent' : 'bg-muted-foreground/40'} h-3`}></div>
+                    <div className={`w-1 rounded-full ${idx === 0 ? 'bg-accent' : 'bg-muted-foreground/40'} h-6`}></div>
+                    <div className={`w-1 rounded-full ${idx === 0 ? 'bg-accent' : 'bg-muted-foreground/40'} h-4`}></div>
+                  </div>
+                  <div className="flex-grow min-w-0">
+                    <div className="text-[13px] font-medium truncate">{fb.text}</div>
+                    <div className="text-[11px] text-muted-foreground mt-0.5 truncate border-separate">
+                      Recorded {fb.createdAt?.toDate ? format(fb.createdAt.toDate(), 'h:mm a') : 'Now'} &bull; {fb.emotion} &bull; {fb.source}
+                    </div>
+                  </div>
+                  <div className={`shrink-0 text-[11px] px-2 py-0.5 rounded-[4px] font-semibold
+                  ${fb.sentiment === 'negative' ? 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-400' :
+                      fb.sentiment === 'positive' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-400' :
+                        'bg-secondary text-muted-foreground'}`
+                  }>
+                    {fb.sentiment === 'negative' ? 'Critical' : fb.sentiment === 'positive' ? 'Positive' : 'Neutral'}
                   </div>
                 </div>
-                <div className={`shrink-0 text-[11px] px-2 py-0.5 rounded-[4px] font-semibold
-                  ${fb.sentiment === 'negative' ? 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-400' : 
-                    fb.sentiment === 'positive' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-400' : 
-                    'bg-secondary text-muted-foreground'}`
-                }>
-                  {fb.sentiment === 'negative' ? 'Critical' : fb.sentiment === 'positive' ? 'Positive' : 'Neutral'}
-                </div>
-              </div>
-            ))}
-            {feedbacks.length === 0 && (
-              <div className="text-center py-4 text-muted-foreground text-sm">No feedback recorded yet.</div>
-            )}
-          </div>
+              ))}
+              {feedbacks.length === 0 && (
+                <div className="text-center py-4 text-muted-foreground text-sm">No feedback recorded yet.</div>
+              )}
+            </div>
           </Card>
         </motion.div>
 
@@ -181,7 +181,7 @@ export default function DashboardHome() {
           <Card className="h-full flex flex-col shadow-sm p-5 rounded-xl hover:shadow-md transition-shadow">
             <div className="text-xs font-semibold uppercase tracking-[0.05em] text-muted-foreground mb-3">Emotional Intelligence Index</div>
             <div className="flex-grow flex flex-col justify-around py-2">
-              
+
               <div>
                 <div className="flex justify-between text-xs mb-1.5">
                   <span>Satisfied</span>
@@ -230,70 +230,80 @@ export default function DashboardHome() {
         <motion.div variants={itemAnimations} className="md:col-span-4 lg:col-span-5 md:row-span-4 flex flex-col">
           <Card className="h-full flex flex-col shadow-sm p-5 rounded-xl overflow-hidden hover:shadow-md transition-shadow">
             <div className="text-xs font-semibold uppercase tracking-[0.05em] text-muted-foreground mb-3">Key Issues & Topics</div>
-          <div className="flex flex-wrap gap-2">
-            {/* Generate tags from actual topics if available, else placeholders */}
-            {(() => {
-              const allTopics = feedbacks.flatMap(f => f.topics || []).reduce((acc, t) => {
-                acc[t] = (acc[t] || 0) + 1;
-                return acc;
-              }, {});
-              const sorted = Object.entries(allTopics).sort((a, b) => b[1] - a[1]).slice(0, 8);
-              
-              if (sorted.length > 0) {
-                return sorted.map(([t, count], idx) => (
-                  <div key={t} className={`text-[13px] px-3 py-2 rounded-[4px] font-semibold whitespace-nowrap
+            <div className="flex flex-wrap gap-2">
+              {/* Generate tags from actual topics if available, else placeholders */}
+              {(() => {
+                const allTopics = feedbacks.flatMap(f => f.topics || []).reduce((acc, t) => {
+                  acc[t] = (acc[t] || 0) + 1;
+                  return acc;
+                }, {});
+                const sorted = Object.entries(allTopics).sort((a, b) => b[1] - a[1]).slice(0, 8);
+
+                if (sorted.length > 0) {
+                  return sorted.map(([t, count], idx) => (
+                    <div key={t} className={`text-[13px] px-3 py-2 rounded-[4px] font-semibold whitespace-nowrap
                     ${idx === 0 ? 'bg-accent/15 text-accent dark:bg-accent/20 dark:text-accent' : 'bg-secondary text-foreground'}`}>
-                    {t} ({count})
-                  </div>
-                ));
-              } else {
-                return (
-                  <div className="text-sm font-medium text-muted-foreground py-2">No topics extracted yet. Record feedback to see analysis.</div>
-                )
-              }
-            })()}
-          </div>
-          
-          <div className="mt-auto">
-            <div className="text-xs font-semibold uppercase tracking-[0.05em] text-muted-foreground mb-3">Topic Sentiment Trend</div>
-            <div className="h-[100px] w-full border-l border-b border-border relative overflow-hidden group-hover:border-accent transition-colors">
-               <svg viewBox="0 0 100 40" preserveAspectRatio="none" className="w-full h-full fill-none stroke-accent stroke-2">
-                 <motion.path 
-                   initial={{ pathLength: 0 }}
-                   animate={{ pathLength: 1 }}
-                   transition={{ duration: 1.5, ease: "easeInOut" }}
-                   d="M0,35 Q10,30 20,25 T40,28 T60,15 T80,10 T100,5"
-                 />
-               </svg>
+                      {t} ({count})
+                    </div>
+                  ));
+                } else {
+                  return (
+                    <div className="text-sm font-medium text-muted-foreground py-2">No topics extracted yet. Record feedback to see analysis.</div>
+                  )
+                }
+              })()}
             </div>
-          </div>
+
+            <div className="mt-auto">
+              <div className="text-xs font-semibold uppercase tracking-[0.05em] text-muted-foreground mb-3">Topic Sentiment Trend</div>
+              <div className="h-[100px] w-full border-l border-b border-border relative overflow-hidden group-hover:border-accent transition-colors">
+                <svg viewBox="0 0 100 40" preserveAspectRatio="none" className="w-full h-full fill-none stroke-accent stroke-2">
+                  <motion.path
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 1.5, ease: "easeInOut" }}
+                    d="M0,35 Q10,30 20,25 T40,28 T60,15 T80,10 T100,5"
+                  />
+                </svg>
+              </div>
+            </div>
           </Card>
         </motion.div>
 
-        {/* Card 6: Critical Alerts */}
+        {/* Card 6: Intelligent Escalations */}
         <motion.div variants={itemAnimations} className="md:col-span-4 lg:col-span-3 md:row-span-4 flex flex-col">
           <Card className="h-full flex flex-col justify-between shadow-sm p-5 rounded-xl hover:shadow-md transition-shadow">
             <div className="text-xs font-semibold uppercase tracking-[0.05em] text-muted-foreground mb-3 shrink-0 flex justify-between items-center">
-              Critical Alerts
-              {negativeCount > 0 && <span className="bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400 px-2 py-0.5 rounded-full text-[10px]">{negativeCount} New</span>}
+              Intelligent Escalations
+              {feedbacks.filter(f => ['high', 'critical'].includes(f.riskLevel) || f.sentiment === 'negative').length > 0 &&
+                <span className="bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400 px-2 py-0.5 rounded-full text-[10px]">
+                  {feedbacks.filter(f => ['high', 'critical'].includes(f.riskLevel) || f.sentiment === 'negative').length} Active
+                </span>
+              }
             </div>
-            
+
             <div className="flex flex-col flex-1 overflow-auto -mx-5 px-5">
-              {feedbacks.filter(f => f.sentiment === 'negative' || f.score < 50).slice(0, 5).map(f => (
+              {feedbacks.filter(f => ['high', 'critical'].includes(f.riskLevel) || f.priority === 'critical' || f.sentiment === 'negative' || f.score < 50).slice(0, 5).map(f => (
                 <div key={f.id} className="py-2.5 border-b border-border flex justify-between items-center group cursor-pointer hover:bg-secondary/50 px-2 -mx-2 rounded-md transition-colors">
-                   <div className="flex flex-col gap-1 max-w-[80%]">
+                  <div className="flex flex-col gap-1 max-w-[80%]">
                     <div className="flex items-center gap-2">
-                       <div className="w-2 h-2 rounded-full bg-destructive shrink-0"></div>
-                       <span className="text-[13px] font-semibold text-foreground truncate">{f.topics?.[0] || 'Issue Detected'}</span>
+                      <div className={`w-2 h-2 rounded-full shrink-0 ${f.riskLevel === 'critical' || f.priority === 'critical' ? 'bg-red-600 animate-pulse' : 'bg-red-400'}`}></div>
+                      <span className="text-[13px] font-semibold text-foreground truncate" title={f.aiRecommendationTitle}>
+                        {f.aiRecommendationTitle || f.topics?.[0] || 'Issue Detected'}
+                      </span>
                     </div>
-                    <span className="text-[11px] text-muted-foreground truncate pl-4">{f.text}</span>
+                    <span className="text-[11px] text-muted-foreground truncate pl-4" title={f.summary || f.text}>
+                      {f.summary || f.text}
+                    </span>
                   </div>
-                  <span className="text-[11px] text-red-500 dark:text-red-400 font-medium whitespace-nowrap bg-red-50 dark:bg-red-900/30 px-2 py-1 rounded-md">Score: {f.score}</span>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className="text-[10px] uppercase font-bold text-red-500/70">{f.riskLevel || 'Risk'}</span>
+                  </div>
                 </div>
               ))}
-              
-              {feedbacks.filter(f => f.sentiment === 'negative' || f.score < 50).length === 0 && (
-                 <div className="py-6 text-center text-sm font-medium text-emerald-600 dark:text-emerald-400">No critical alerts entirely!</div>
+
+              {feedbacks.filter(f => ['high', 'critical'].includes(f.riskLevel) || f.priority === 'critical' || f.sentiment === 'negative' || f.score < 50).length === 0 && (
+                <div className="py-6 text-center text-sm font-medium text-emerald-600 dark:text-emerald-400">No critical alerts entirely!</div>
               )}
             </div>
 
